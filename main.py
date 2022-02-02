@@ -3,19 +3,17 @@ from fhirpy import SyncFHIRClient
 import datetime
 
 # Set Up Variables
-SlotID = 2806207
-ScheduleID = 2806206
-PractitionerID = 2806205
-PatientID = 2806193
+scheduleID = 2806855
+practitionerID = 2806854
+patientID = 2806193
 
-# Create an instance
+# Create a client instance
 client = SyncFHIRClient(
     'http://hapi.fhir.org/baseR4'
 )
 
 slot = client.resources('Slot')
-schedule = client.resources('Schedule')
-slot = slot.search(schedule=ScheduleID, status="free")
+slot = slot.search(schedule=scheduleID, status="free")
 
 print("Searching for available slots...")
 
@@ -27,27 +25,33 @@ for index, entry in enumerate(slots):
           entry.serviceType[0].coding[0].display)
 if slots:
     selection = int(input("Select Entry to book: "))
+    reason = input("Enter Reason for Visit: ")
     appointment = client.resource(
         "Appointment",
         Slot=[{
             "reference": slots[selection].reference
         }],
         status="booked",
+        serviceCategory=[{"coding": [{
+            "code": "17",
+            "display": "General Practice",
+        }]
+        }],
         start=slots[selection].start,
         end=slots[selection].end,
         participant=[{
             "actor": [{
-                "reference": "Patient/{}".format(PatientID),
+                "reference": "Patient/{}".format(patientID),
                 "display": "Belcher, Bob"
             }],
             "status": "accepted",
             "actor": [{
-                "reference": "Practitioner/{}".format(PractitionerID),
+                "reference": "Practitioner/{}".format(practitionerID),
                 "display": "Victest, Alpha"
             }],
             "status": "accepted"
         }],
-        reasonCode=[{"text": "To Prevent COVID"}]
+        reasonCode=[{"text": reason}]
     )
     appointment.save()
     slots[selection].status = "busy"

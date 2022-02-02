@@ -24,6 +24,7 @@ def create_patient():
     print(patient.id)
     return patient
 
+
 def create_practitioner():
     practitioner = client.resource(
         "Practitioner",
@@ -32,7 +33,7 @@ def create_practitioner():
     )
     practitioner.save()
     # practitioner["active""]
-    print(practitioner.id)
+    print("Practioner:", practitioner.id)
     return practitioner
 
 
@@ -41,44 +42,53 @@ def create_schedule(practitionerreference):
         "Schedule",
         active=True,
         serviceCategory=[{"coding": [{
-                "code": "17",
-                "display": "General Practice",
-            }],
+            "code": "17",
+            "display": "General Practice",
+        }],
         }],
         actor=[{"reference": practitionerreference,
                 "display": "Victest, Alpha"}],
         planningHorizon=[{"Start": datetime.datetime.now(pytz.utc).isoformat(),
-                         "End": datetime.datetime(2022, 12, 31, 23, 59, 59, 0, tzinfo=pytz.utc).isoformat()}]
+                          "End": datetime.datetime(2022, 12, 31, 23, 59, 59, 0, tzinfo=pytz.utc).isoformat()}]
     )
     schedule.save()
-    print(schedule.id)
+    print("Schedule ID:", schedule.id)
     return schedule
 
 
-def create_slot(schedule, practitioner):
+def create_slot(schedule, practitioner, mins):
     slot = client.resource(
         "Slot",
         schedule=[{"reference": schedule.reference}],
         status="free",
-        start=datetime.datetime(2022, 2, 4, 12, 00, tzinfo=pytz.utc).isoformat(),
-        end=datetime.datetime(2022, 2, 4, 12, 15, tzinfo=pytz.utc).isoformat(),
+        start=datetime.datetime(2022, 2, 4, 12, mins, tzinfo=pytz.utc).isoformat(),
+        end=datetime.datetime(2022, 2, 4, 12, mins + 10, tzinfo=pytz.utc).isoformat(),
         serviceCategory=[{"coding": [{
-                "code": "17",
-                "display": "General Practice",
-            }],
+            "code": "17",
+            "display": "General Practice",
+        }],
         }],
         serviceType=[{"coding": [{
-                "code": "17",
-                "display": "Immunization",
-            }],
+            "code": "17",
+            "display": "Immunization",
+        }],
         }]
     )
     slot.save()
-    print(slot.id)
+    print("Slot ID", slot.id)
     return slot
 
 
-#patient = create_patient()
+def create_multiple_slots(schedule, practitioner):
+    instances = 5
+    start_min = 00
+    slots = []
+    for instance in range(0, instances-1):
+        start_min = start_min + 10
+        slots.append(create_slot(schedule, practitioner, start_min))
+
+
+# patient = create_patient()
 practitioner = create_practitioner()
 schedule = create_schedule(practitioner.reference)
-slot = create_slot(schedule, practitioner)
+slots = create_multiple_slots(schedule, practitioner)
