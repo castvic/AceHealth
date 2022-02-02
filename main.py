@@ -3,8 +3,8 @@ from fhirpy import SyncFHIRClient
 import datetime
 
 # Set Up Variables
-scheduleID = 2806855
-practitionerID = 2806854
+scheduleID = 2807339
+practitionerID = 2807338
 patientID = 2806193
 
 # Create a client instance
@@ -31,7 +31,7 @@ for index, entry in enumerate(slots):
 # Check to make sure we have entries available to us and if so prompt user to select
 # an available Date Time/Service and provide a reason for the visit
 if slots:
-    # TODO Add better error handling
+    # TODO Add better error handling and option to exit
     selection = int(input("Select Entry to book: "))
     reason = input("Enter Reason for Visit: ")
     appointment = client.resource(
@@ -64,8 +64,9 @@ if slots:
     appointment.save()
     slots[selection].status = "busy"
     slots[selection].save()
-
-    print("Appointment booked with Appointment ID {}".format(appointment.id))
+    # TODO Add additional patient information in response to patient
+    print("Appointment booked for Bob Belcher with Dr Alpha Victest, MD ")
+    print("Appointment ID: {}".format(appointment.id))
     print("Appointment Reason: {}".format(appointment.reasonCode[0].text))
 else:
     print("No Available Time Slots")

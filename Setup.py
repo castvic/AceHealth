@@ -81,10 +81,10 @@ def create_slot(schedule, practitioner, mins):
 
 def create_multiple_slots(schedule, practitioner):
     instances = 5
-    start_min = 00
+    start_min = 0
     slots = []
-    for instance in range(0, instances-1):
-        start_min = start_min + 10
+    for instance in range(0, instances):
+        start_min = instance * 10
         slots.append(create_slot(schedule, practitioner, start_min))
 
 
