@@ -12,18 +12,26 @@ client = SyncFHIRClient(
     'http://hapi.fhir.org/baseR4'
 )
 
+# Create an instance of the resource and search for
+# TODO Add sort and increase number returned
 slot = client.resources('Slot')
 slot = slot.search(schedule=scheduleID, status="free")
 
+# Let User know we are searching for available slots and perform search
 print("Searching for available slots...")
-
 slots = slot.fetch()
+
+# Let User know of available slots
 print("# Start                End                  Service Type")
 for index, entry in enumerate(slots):
     print(index, datetime.datetime.fromisoformat(entry.start).strftime('%b-%d-%Y %H:%M %p'),
           datetime.datetime.fromisoformat(entry.end).strftime('%b-%d-%Y %H:%M %p'),
           entry.serviceType[0].coding[0].display)
+
+# Check to make sure we have entries available to us and if so prompt user to select
+# an available Date Time/Service and provide a reason for the visit
 if slots:
+    # TODO Add better error handling
     selection = int(input("Select Entry to book: "))
     reason = input("Enter Reason for Visit: ")
     appointment = client.resource(
